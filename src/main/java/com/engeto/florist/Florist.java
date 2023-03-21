@@ -14,7 +14,7 @@ public class Florist {
                                                 String table)
             throws SQLException {
         statement.executeUpdate("DELETE FROM " + table
-                + " WHERE is_poisonous = false");
+                + " WHERE is_poisonous = false;");
         for (int i = 0; i < flowers.length; ++i) {
             if (!flowers[i].isPoisonous()) {
                 flowers[i] = null;
@@ -31,13 +31,13 @@ public class Florist {
                     + flower.getColor() + "', '"
                     + flower.getDescription() + "', "
                     + flower.isPoisonous()
-                    + ")");
+                    + ");");
         }
     }
 
     private static void printNames(Statement statement, String table)
             throws SQLException {
-        statement.executeQuery("SELECT * FROM " + table);
+        statement.executeQuery("SELECT * FROM " + table + ";");
         ResultSet result = statement.getResultSet();
         while (result.next()) {
             System.out.println(result.getString("flower_name"));
@@ -50,7 +50,7 @@ public class Florist {
         statement.executeUpdate("UPDATE " + table + " SET "
                 + "description = '" + description
                 + "' WHERE flower_name = '"
-                + flower.getFlowerName() + "'");
+                + flower.getFlowerName() + "';");
         flower.setDescription(description);
     }
 
@@ -71,7 +71,7 @@ public class Florist {
 
             String table = "florist.flower";
             // Clear the table to enable running the program repetitively
-            statement.executeUpdate("DELETE FROM " + table);
+            statement.executeUpdate("DELETE FROM " + table + ";");
 
             insertItems(flowers, statement, table);
 
