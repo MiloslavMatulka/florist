@@ -9,30 +9,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Florist {
-    private static void deleteNonpoisonousItems(Flower[] flowers,
-                                                Statement statement,
+    private static void deleteAll(Statement statement, String table)
+            throws SQLException {
+        statement.executeUpdate("DELETE FROM " + table + ";");
+    }
+
+    private static void deleteNonpoisonousItems(Statement statement,
                                                 String table)
             throws SQLException {
         statement.executeUpdate("DELETE FROM " + table
                 + " WHERE is_poisonous = false;");
-        for (int i = 0; i < flowers.length; ++i) {
-            if (!flowers[i].isPoisonous()) {
-                flowers[i] = null;
-            }
-        }
     }
 
-    private static void insertItems(Flower[] flowers, Statement statement,
-                                    String table) throws SQLException {
-        for (Flower flower : flowers) {
-            statement.executeUpdate("INSERT INTO " + table
-                    + " VALUES " + "(" + flower.getId() + ", '"
-                    + flower.getFlowerName() + "', '"
-                    + flower.getColor() + "', '"
-                    + flower.getDescription() + "', "
-                    + flower.isPoisonous()
-                    + ");");
-        }
+    private static void insertItem(Flower flower, Statement statement,
+                                   String table) throws SQLException {
+        statement.executeUpdate("INSERT INTO " + table
+                + " VALUES " + "(" + flower.getId() + ", '"
+                + flower.getFlowerName() + "', '"
+                + flower.getColor() + "', '"
+                + flower.getDescription() + "', "
+                + flower.isPoisonous()
+                + ");");
     }
 
     private static void printNames(Statement statement, String table)
@@ -44,24 +41,19 @@ public class Florist {
         }
     }
 
-    private static void updateDescription(Flower flower, Statement statement,
-                                          String table, String description)
+    private static void updateDescription(String flowerName,
+                                          Statement statement,
+                                          String table,
+                                          String description)
             throws SQLException {
         statement.executeUpdate("UPDATE " + table + " SET "
                 + "description = '" + description
                 + "' WHERE flower_name = '"
-                + flower.getFlowerName() + "';");
-        flower.setDescription(description);
+                + flowerName + "';");
     }
 
     public static void main(String[] args) {
         Logger logger = Logger.getLogger(Florist.class.getName());
-
-        Flower snowflake = new Flower("Bledule", "bílá",
-                "jarní květina", true);
-        Flower marguerite = new Flower("Kopretina", "bíložlutá",
-                "letní květina", false);
-        Flower[] flowers = {snowflake, marguerite};
 
         try (Connection connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306",
@@ -71,18 +63,23 @@ public class Florist {
 
             String table = "florist.flower";
             // Clear the table to enable running the program repetitively
-            statement.executeUpdate("DELETE FROM " + table + ";");
+            deleteAll(statement, table);
 
-            insertItems(flowers, statement, table);
+            Flower flower = new Flower("bledule", "bílá",
+                    "jarní květina", true);
+            insertItem(flower, statement, table);
+            flower = new Flower("kopretina", "bíložlutá",
+                    "letní květina", false);
+            insertItem(flower, statement, table);
 
-            String snowflakeDescriptionUpdate =
-                    "Pozor na cibulku - obsahuje největší koncentraci jedu!";
-            updateDescription(snowflake, statement, table,
-                    snowflakeDescriptionUpdate);
+            String newDescription =
+                    "pozor na cibulku - obsahuje největší koncentraci jedu!";
+            updateDescription("bledule", statement, table,
+                    newDescription);
 
-            deleteNonpoisonousItems(flowers, statement, table);
+            deleteNonpoisonousItems(statement, table);
 
-            System.out.println("All flowers in table:");
+            System.out.println("Vypiš všechny květiny v tabulce:");
             printNames(statement, table);
         } catch (SQLException e) {
             logger.log(Level.WARNING, "Chyba při komunikaci s databází: "
