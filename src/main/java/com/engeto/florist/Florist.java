@@ -79,7 +79,7 @@ public class Florist {
 
             deleteNonpoisonousItems(statement, table);
 
-            System.out.println("Vypiš všechny květiny v tabulce:");
+            System.out.println("Vypiš jména všech květin v tabulce:");
             printNames(statement, table);
         } catch (SQLException e) {
             logger.log(Level.WARNING, "Chyba při komunikaci s databází: "
